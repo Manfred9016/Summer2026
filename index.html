@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Global Cultures Interactive</title>
+    <style>
+        :root {
+            /* Vintage Travel / Passport Theme */
+            --primary: #2a5c8d; 
+            --primary-dark: #1e456d;
+            --secondary: #c93b3b; 
+            --bg-color: #f4efe6; 
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --correct: #4CAF50;
+            --correct-dark: #388E3C;
+            --incorrect: #c93b3b;
+            --radius-lg: 12px;
+            --shadow-soft: 0 6px 0 rgba(0,0,0,0.05);
+            --stamp-opacity: 0.15;
+        }
+
+        [data-theme="dark"] {
+            --primary: #4fa3e3;
+            --primary-dark: #2a5c8d;
+            --secondary: #ff6b6b;
+            --bg-color: #1a222c; 
+            --card-bg: #2d3744;
+            --text-main: #f4efe6;
+            --text-muted: #a0aab5;
+            --shadow-soft: 0 6px 0 rgba(0,0,0,0.3);
+            --stamp-opacity: 0.05;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace; 
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            transition: background-color 0.3s ease;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Passport Stamp Background Pattern */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 30%, transparent 60%, var(--primary) 61%, transparent 63%),
+                radial-gradient(circle at 80% 70%, transparent 60%, var(--secondary) 61%, transparent 63%);
+            background-size: 300px 300px;
+            opacity: var(--stamp-opacity);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: var(--card-bg);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-bottom: 3px dashed var(--secondary);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+            font-family: 'Arial', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .stats {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        #dark-mode-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        #app-container {
+            max-width: 850px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            position: relative;
+        }
+
+        /* Cards & Buttons */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .level-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-soft);
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-card::after {
+            content: "DEPARTURE";
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            transform: rotate(45deg);
+            color: var(--secondary);
+            font-weight: bold;
+            font-size: 0.8rem;
+            border: 2px solid var(--secondary);
+            padding: 2px 20px;
+            opacity: 0.3;
+        }
+
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 0 rgba(0,0,0,0.1);
+        }
+        .level-card:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 transparent;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-bottom: 4px solid var(--primary-dark);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            font-family: 'Arial', sans-serif;
+            text-transform: uppercase;
+            transition: all 0.1s;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            border-bottom: 0px;
+            margin-bottom: 4px;
+        }
+        
+        .btn-secondary {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 2px solid var(--primary);
+            border-bottom: 4px solid var(--primary);
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 2rem;
+        }
+
+        .reading-container {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 2rem;
+            font-family: 'Georgia', serif;
+            line-height: 2;
+            font-size: 1.2rem;
+            border: 2px dashed var(--text-muted);
+        }
+
+        /* Word Cloud & Interactive Reading */
+        .word-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(42, 92, 141, 0.1);
+            border-radius: 8px;
+            border: 1px solid var(--primary);
+        }
+
+        .cloud-word {
+            background: white;
+            color: var(--primary);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-family: 'Arial', sans-serif;
+            border: 2px solid var(--primary);
+            box-shadow: 2px 2px 0 var(--primary);
+            transition: all 0.3s;
+        }
+
+        .cloud-word.found {
+            background: var(--correct);
+            color: white;
+            border-color: var(--correct-dark);
+            box-shadow: 2px 2px 0 var(--correct-dark);
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .interactive-word {
+            cursor: pointer;
+            padding: 0 2px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+
+        .interactive-word:hover {
+            background: rgba(42, 92, 141, 0.1);
+        }
+
+        .interactive-word.revealed {
+            background: var(--primary);
+            color: white;
+            font-weight: bold;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--text-muted);
+            opacity: 0.3;
+            margin: 2rem 0;
+        }
+
+        /* Inputs */
+        input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.2rem;
+            border: 2px dashed var(--primary);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-main);
+            margin-top: 1rem;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+        }
+
+        /* Flashcards */
+        .flashcard-scene {
+            width: 100%;
+            height: 300px;
+            perspective: 1000px;
+            margin: 2rem 0;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: var(--card-bg);
+            border: 3px solid var(--primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            font-family: 'Arial', sans-serif;
+            font-size: 2.5rem;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+
+        /* Unscramble Vocab */
+        .scrambled-text {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 10px;
+            text-align: center;
+            color: var(--secondary);
+            margin: 2rem 0;
+            text-transform: uppercase;
+        }
+
+        /* Sentence Drag & Drop */
+        .sentence-dropzone {
+            min-height: 80px;
+            border: 3px dashed var(--primary);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: rgba(42, 92, 141, 0.05);
+        }
+        .word-bank {
+            min-height: 80px;
+            border: 2px solid #ccc;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: var(--card-bg);
+        }
+        .draggable-word {
+            padding: 10px 15px;
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            cursor: grab;
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 3px 0 var(--primary);
+            transition: transform 0.1s;
+            user-select: none;
+        }
+        .draggable-word:active {
+            cursor: grabbing;
+            transform: translateY(3px);
+            box-shadow: 0 0 0 var(--primary);
+        }
+
+        /* Match Tradition Layout */
+        .tradition-display {
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: rgba(42, 92, 141, 0.1);
+            border-radius: 12px;
+            border: 2px dashed var(--primary);
+        }
+        .flag-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+        }
+        .flag-option {
+            background: var(--card-bg);
+            border: 2px solid var(--text-muted);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+        }
+        .flag-option:hover {
+            border-color: var(--primary);
+            background: rgba(42, 92, 141, 0.05);
+            transform: translateY(-3px);
+        }
+        .flag-emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Scratch Challenge */
+        .scratch-wrapper {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: #222;
+            border: 6px solid var(--primary);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .scratch-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            visibility: hidden;
+        }
+        #scratch-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: crosshair;
+            z-index: 5;
+            border-radius: 6px;
+        }
+        .flag-word-display {
+            font-family: 'Arial', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 5px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+        .hidden-word span {
+            background: var(--primary-dark);
+            color: transparent;
+            border: 2px solid var(--bg-color);
+            padding: 0 10px;
+            margin: 0 3px;
+            border-radius: 4px;
+        }
+        .revealed-word span {
+            color: var(--text-main);
+            background: transparent;
+            border: none;
+        }
+
+        /* Animations */
+        @keyframes popIn {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.3s ease-out forwards;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+        }
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+        .level-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 2px solid var(--primary);
+}
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="logo">Cultural Differences Around the World</div>
+        <div class="stats">
+            <span id="xp-counter">⭐ 0 XP</span>
+            <button id="dark-mode-toggle">🌙</button>
+        </div>
+    </header>
+    
+    <main id="app-container">
+        <!-- Content injected dynamically via app.js -->
+    </main>
+
+    <script>
+        // --- DATA LAYER ---
+        const flagsDB = [
+            { name: "Japan", emoji: "🇯🇵", img: "https://flagcdn.com/w640/jp.png" },
+            { name: "Brazil", emoji: "🇧🇷", img: "https://flagcdn.com/w640/br.png" },
+            { name: "Greece", emoji: "🇬🇷", img: "https://flagcdn.com/w640/gr.png" },
+            { name: "Spain", emoji: "🇪🇸", img: "https://flagcdn.com/w640/es.png" },
+            { name: "Ireland", emoji: "🇮🇪", img: "https://flagcdn.com/w640/ie.png" },
+            { name: "Denmark", emoji: "🇩🇰", img: "https://flagcdn.com/w640/dk.png" },
+            { name: "Mexico", emoji: "🇲🇽", img: "https://flagcdn.com/w640/mx.png" },
+            { name: "Bolivia", emoji: "🇧🇴", img: "https://flagcdn.com/w640/bo.png" },
+            { name: "Finland", emoji: "🇫🇮", img: "https://flagcdn.com/w640/fi.png" },
+            { name: "UK", emoji: "🇬🇧", img: "https://flagcdn.com/w640/gb.png" },
+            { name: "USA", emoji: "🇺🇸", img: "https://flagcdn.com/w640/us.png" },
+            { name: "Canada", emoji: "🇨🇦", img: "https://flagcdn.com/w640/ca.png" }
+        ];
+
+        const courseData = {
+          levels: [
+            {
+              id: "basic",
+              title: "Basic Level",
+              description: "New Year's Traditions from Cultures Around the World",
+              image: "Images/Basic.jpg",
+              reading: [
+                { country: "Japan", text: "One of the most popular traditions is the \"year-crossing noodles,\" which people eat on New Year's Eve. This is to symbolize a long and healthy life. It is also common for people to visit temples and shrines to pray for good fortune in the new year. Another popular tradition is the \"bell-ringing ceremony,\". The Japanese people ring a large temple bell 108 times to symbolize the 108 human desires that are believed to cause suffering. All of this goes on at midnight on New Year's Eve. It purifies the mind and brings good fortune for the new year." },
+                { country: "Brazil", text: "In Brazil, as well as other Central and South America countries like Ecuador, Bolivia, and Venezuela, it is thought to be lucky to wear special underwear on New Year's Eve. The most popular colors are red, thought to bring love in the New Year, and yellow, thought to bring money." },
+                { country: "Greece", text: "An onion is traditionally hung on the front door of homes on New Year's Eve in Greece as a symbol of rebirth in the New Year. On New Year's Day, parents wake their children by tapping them on the head with the onion." },
+                { country: "Spain", text: "In Spain, it is customary to eat 12 grapes – one at each stroke of the clock at midnight on New Year's Eve. Each grape represents good luck for one month of the coming year. In bigger cities like Madrid and Barcelona, people gather in main squares to eat their grapes together and pass around bottles of cava." },
+                { country: "Ireland", text: "New Year's Eve in Ireland is a time of celebration and tradition marked by various customs and activities. These include the \"First Footing\" tradition. The first person to enter a house after midnight is seen as a symbol of good luck for the year ahead." },
+                { country: "Denmark", text: "Residents of Denmark greet the New Year by throwing old plates and glasses against the doors of family and friends to banish bad spirits. They also stand on chairs and jump off of them together at midnight to \"leap\" into January in hopes of good luck." }
+              ],
+              vocabulary: [
+                { word: "symbolize", chinese: "象徵", icon: "✨" },
+                { word: "temples", chinese: "寺廟", icon: "🏯" },
+                { word: "shrines", chinese: "神社", icon: "⛩️" },
+                { word: "fortune", chinese: "財富/運氣", icon: "🍀" },
+                { word: "desires", chinese: "慾望", icon: "💭" },
+                { word: "purifies", chinese: "淨化", icon: "💧" },
+                { word: "special", chinese: "特別的", icon: "🌟" },
+                { word: "banish", chinese: "驅逐", icon: "🚫" }
+              ],
+              questions: [
+                { type: "mc", q: "1. In which country is it considered lucky to wear special colored underwear on New Year's Eve?", options: ["Japan", "Brazil", "Greece", "Spain"], answer: 1 },
+                { type: "mc", q: "2. What is the Irish New Year's Eve tradition where the first person to enter a house after midnight symbolizes good luck?", options: ["First Eating", "First Greeting", "First Footing", "First Hug"], answer: 2 },
+                { type: "mc", q: "3. What do people in Denmark traditionally do at midnight on New Year's Eve to leap into January for good luck?", options: ["Dance in circles", "Sing traditional songs", "Stand on chairs and jump off", "Light fireworks"], answer: 2 },
+                { type: "fill", q: "4. In Denmark, residents throw old __________ against doors on New Year's Eve to banish bad spirits.", answer: "plates and glasses" },
+                { type: "fill", q: "5. In Japan, people eat 'year-crossing noodles' on New Year's Eve to symbolize a __________ life.", answer: "long and healthy" }
+              ],
+              unscrambleWords: ["popular", "midnight", "underwear", "grape", "noodles", "ceremony", "onion"],
+              sentences: [
+                "One of the most popular traditions is the “year-crossing noodles,” which people eat on New Year’s Eve.",
+                "An onion is traditionally hung on the front door of homes on New Year’s Even in Greece as a symbol of rebirth in the New Year.",
+                "In Spain, it is customary to eat 12 grapes – one at each stroke of the clock at midnight on New Year’s Eve."
+              ],
+              traditionsMap: [
+                  { country: "Japan", text: "People eat 'year-crossing noodles' and ring temple bells 108 times at midnight." },
+                  { country: "Brazil", text: "It is thought to be lucky to wear special colored underwear on New Year's Eve." },
+                  { country: "Greece", text: "An onion is traditionally hung on the front door of homes as a symbol of rebirth." },
+                  { country: "Spain", text: "It is customary to eat 12 grapes – one at each stroke of the clock at midnight." },
+                  { country: "Ireland", text: "The 'First Footing' tradition brings good luck depending on the first person to enter a house." },
+                  { country: "Denmark", text: "People throw old plates and glasses against the doors of family and friends to banish bad spirits." }
+              ]
+            },
+            {
+              id: "intermediate",
+              title: "Intermediate Level",
+              description: "Cultural Differences Around the World",
+              image: "Images/Intermediate.jpg",
+              reading: [
+                { country: "Cake in the Face, Mexico", text: "If you like to nibble your birthday cake elegantly, it might be best not to spend your birthday in Mexico. After singing Happy Birthday, guests watch while the birthday boy or girl blows out the candles. They then lean over and take a bite of the cake, at which point someone will push their face into it." },
+                { country: "Baking Money into Food, Bolivia", text: "Speaking of food, did you know that in Bolivia it is traditional to bake money into sweet pastries and cakes on New Year's Eve? It's a tradition in which bakeries across the country take part. Those who find a coin in their cake can look forward to plenty of good luck in the new year." },
+                { country: "Tossing Teeth, Greece", text: "Do you leave your teeth under the pillow for the Tooth Fairy to swap for money? In Greece, they take a different approach. There, children toss their milk teeth onto the roof when they fall out. The tradition is supposed to bring good luck to the child's family and hail the arrival of a healthy adult tooth." },
+                { country: "Carrying Wives, Finland", text: "More of a competitive sport than it is a tradition, a wife-carrying competition, called the Wife Carrying World Championships. Every year in Finland, where the sport was invented, athletes participate in a race where a male competitor carries a female competitor through an obstacle course. The winners are the fastest team. The prize is the wife's weight in beer. Other prizes awarded to the team with the best costumes, the strongest carrier, and the most entertaining couple." },
+                { country: "Cheese Rolling, UK", text: "Every Spring Bank Holiday, crowds gather on Cooper's Hill in Gloucestershire to chase cheese down a hill. Competitors race to catch a seven to nine-pound round of Double Gloucester cheese, as it reaches speeds of up to 70 miles per hour rolling down Cooper's Hill. The winner is presented with a cheese as their prize. While the origins of the event have been lost to history, we know that it has been celebrated locally for well over 200 years." }
+              ],
+              vocabulary: [
+                { word: "nibble", chinese: "咬", icon: "🍰" },
+                { word: "approach", chinese: "方法", icon: "🛠️" },
+                { word: "tradition", chinese: "傳統", icon: "📜" },
+                { word: "obstacle", chinese: "障礙", icon: "🚧" }
+              ],
+              questions: [
+                { type: "mc", q: "1. What is the tradition in Bolivia involving sweet pastries and cakes on New Year's Eve?", options: ["Baking money into them", "Sharing them with neighbors", "Decorating them with colorful icing", "Feeding them to livestock"], answer: 0 },
+                { type: "mc", q: "2. Where do children toss their milk teeth onto the roof when they fall out?", options: ["Mexico", "Bolivia", "Greece", "Finland"], answer: 2 },
+                { type: "mc", q: "3. What type of cheese do competitors chase down Cooper's Hill during the UK's Cheese Rolling event?", options: ["Cheddar", "Brie", "Double Gloucester", "Swiss"], answer: 2 },
+                { type: "fill", q: "4. What is the main prize for the winners of the Wife Carrying World Championships?", answer: "The wife's weight in beer" },
+                { type: "fill", q: "5. How do Greek children handle fallen milk teeth?", answer: "Toss onto roof for luck" }
+              ],
+              unscrambleWords: ["approach", "competitor", "event", "entertaining", "children", "cheese", "plenty"],
+              sentences: [
+                "If you like to nibble your birthday cake elegantly, it might be best not to spend your birthday in Mexico."
+              ],
+              traditionsMap: [
+                  { country: "Mexico", text: "After blowing out the candles, someone pushes the birthday person's face into the cake." },
+                  { country: "Bolivia", text: "It is traditional to bake money into sweet pastries and cakes on New Year's Eve." },
+                  { country: "Greece", text: "Children toss their milk teeth onto the roof when they fall out to bring good luck." },
+                  { country: "Finland", text: "Athletes participate in a Wife Carrying World Championship obstacle course." },
+                  { country: "UK", text: "Crowds gather on Cooper's Hill to chase a 9-pound round of cheese down a steep hill." }
+              ]
+            }
+          ]
+        };
+
+        // --- APPLICATION LOGIC ---
+        const appContainer = document.getElementById('app-container');
+        let currentLevel = null;
+        let userXP = parseInt(localStorage.getItem('userXP')) || 0;
+        
+        let currentQuestionIndex = 0;
+        let currentFlashcardIndex = 0;
+        let currentVocabUnscrambleIndex = 0;
+        let currentSentenceIndex = 0;
+        let matchTraditionIndex = 0;
+        let scratchChallengeIndex = 0;
+        
+        let wordsToFind = [];
+        let scratchData = []; 
+        let isDrawing = false;
+        let scratchCtx = null;
+        let scratchCanvasEl = null;
+
+        function init() {
+            updateXP(0);
+            renderHome();
+            setupThemeToggle();
+        }
+
+        function updateXP(amount) {
+            userXP += amount;
+            localStorage.setItem('userXP', userXP);
+            document.getElementById('xp-counter').textContent = `⭐ ${userXP} XP`;
+        }
+
+        function renderHome() {
+    appContainer.innerHTML = `
+        <h1 style="text-align:center; font-family:'Arial', sans-serif;">CHOOSE YOUR DESTINATION</h1>
+        <div class="card-grid animate-pop">
+            ${courseData.levels.map(level => `
+                <div class="level-card" onclick="startLevel('${level.id}')">
+                    <img src="${level.image}" alt="${level.title}" class="level-image">
+                    <h2 style="font-family:'Arial', sans-serif; color:var(--primary);">${level.title}</h2>
+                    <p style="color: var(--text-muted); font-family:sans-serif;">${level.description}</p>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+        function startLevel(levelId) {
+            currentLevel = courseData.levels.find(l => l.id === levelId);
+            renderMenu();
+        }
+
+        function renderMenu() {
+            appContainer.innerHTML = `
+                <button class="btn btn-secondary" style="width:auto; margin-bottom: 1rem;" onclick="renderHome()">← Back to Levels</button>
+                <h1 style="text-align:center; font-family:'Arial', sans-serif;">${currentLevel.title.toUpperCase()}</h1>
+                <div class="card-grid animate-pop">
+                    <div class="level-card" onclick="renderReading()">
+                        <div style="font-size: 3rem;">📖</div>
+                        <h3 style="font-family:'Arial', sans-serif; margin-top:1rem;">Reading Mission</h3>
+                    </div>
+                    <div class="level-card" onclick="startQuiz()">
+                        <div style="font-size: 3rem;">❓</div>
+                        <h3 style="font-family:'Arial', sans-serif; margin-top:1rem;">Knowledge Check</h3>
+                    </div>
+                    <div class="level-card" onclick="startFlashcards()">
+                        <div style="font-size: 3rem;">🎴</div>
+                        <h3 style="font-family:'Arial', sans-serif; margin-top:1rem;">Vocab Flashcards</h3>
+                    </div>
+                    <div class="level-card" onclick="startVocabUnscramble()">
+                        <div style="font-size: 3rem;">🔀</div>
+                        <h3 style="font-family:'Arial', sans-serif; margin-top:1rem;">Unscramble Vocab</h3>
+                    </div>
+                    <div class="level-card" onclick="startSentenceUnscramble()">
+                        <div style="font-size: 3rem;">🧩</div>
+                        <h3 style="font-family:'Arial', sans-serif; margin-top:1rem;">Sentence Builder</h3>
+                    </div>
+                    <div class="level-card" onclick="startMatchTradition()">
+                        <div style="font-size: 3rem;">🔗</div>
+                        <h3 style="font-family:'Arial', sans-serif; margin-top:1rem;">Match Tradition</h3>
+                    </div>
+                    <div class="level-card" onclick="startFlagChallenge()">
+                        <div style="font-size: 3rem;">🏳️</div>
+                        <h3 style="font-family:'Arial', sans-serif; margin-top:1rem;">Flag Challenge</h3>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- ACTIVITY 1: READING WITH WORD CLOUD ---
+        function renderReading() {
+            wordsToFind = currentLevel.vocabulary.map(v => v.word.toLowerCase());
+            
+            const cloudHTML = currentLevel.vocabulary.map(v => 
+                `<span class="cloud-word" id="cloud-${v.word.toLowerCase()}">${v.word}</span>`
+            ).join('');
+
+            const passagesHTML = currentLevel.reading.map(r => {
+                const interactiveText = r.text.replace(/([a-zA-Z0-9-]+)/g, '<span class="interactive-word" onclick="checkWord(this)">$1</span>');
+                return `
+                    <h3 style="color: var(--secondary); font-family:'Arial', sans-serif;">📍 ${r.country}</h3>
+                    <p>${interactiveText}</p>
+                    <hr>
+                `;
+            }).join('');
+
+            appContainer.innerHTML = `
+                <button class="btn btn-secondary" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
+                <div class="reading-container animate-pop">
+                    <h2 style="font-family:'Arial', sans-serif; margin-top:0;">Find the Vocabulary!</h2>
+                    <p style="font-family:sans-serif; color:var(--text-muted); font-size:1rem;">Click the words in the text below that match the words in this cloud.</p>
+                    <div class="word-cloud">
+                        ${cloudHTML}
+                    </div>
+                    ${passagesHTML}
+                    <button class="btn" onclick="updateXP(20); startQuiz();">Complete & Continue to Quiz (+20 XP)</button>
+                </div>
+            `;
+        }
+
+        function checkWord(element) {
+            const clickedWord = element.innerText.toLowerCase();
+            if (wordsToFind.includes(clickedWord)) {
+                element.classList.add('revealed');
+                const cloudEl = document.getElementById(`cloud-${clickedWord}`);
+                if (cloudEl && !cloudEl.classList.contains('found')) {
+                    cloudEl.classList.add('found');
+                    updateXP(5);
+                }
+            } else {
+                element.classList.add('shake');
+                setTimeout(() => element.classList.remove('shake'), 400);
+            }
+        }
+
+        // --- ACTIVITY 2: QUIZ ---
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            renderQuiz();
+        }
+
+        function renderQuiz() {
+            const qData = currentLevel.questions[currentQuestionIndex];
+            const isLast = currentQuestionIndex === currentLevel.questions.length - 1;
+            const isFirst = currentQuestionIndex === 0;
+            
+            let interactionHTML = '';
+            
+            if (qData.type === 'mc') {
+                interactionHTML = `
+                    <div id="mc-options" style="display:flex; flex-direction:column; gap:10px; margin-top: 2rem;">
+                        ${qData.options.map((opt, index) => `
+                            <button class="btn btn-secondary" style="padding: 1.2rem; text-align: left; text-transform:none; font-family:'Courier New', monospace;" 
+                            onclick="checkQuizAnswer(this, ${index}, ${qData.answer}, 'mc')">${opt}</button>
+                        `).join('')}
+                    </div>`;
+            } else if (qData.type === 'fill') {
+                interactionHTML = `
+                    <div style="margin-top: 2rem;">
+                        <input type="text" id="fill-input" placeholder="Type your answer here..." autocomplete="off">
+                        <button class="btn" style="margin-top:1rem;" onclick="checkQuizAnswer(document.getElementById('fill-input'), null, '${qData.answer}', 'fill')">Check Answer</button>
+                    </div>`;
+            }
+
+            appContainer.innerHTML = `
+                <button class="btn btn-secondary" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
+                <div class="reading-container animate-pop">
+                    <div style="display:flex; justify-content:space-between; color:var(--text-muted); font-family:sans-serif; margin-bottom:1rem;">
+                        <span>Question ${currentQuestionIndex + 1} of ${currentLevel.questions.length}</span>
+                    </div>
+                    <p style="font-size: 1.3rem; font-weight: bold;">${qData.q}</p>
+                    ${interactionHTML}
+                    
+                    <div class="nav-buttons">
+                        <button class="btn btn-secondary" style="width:48%;" onclick="navigateQuiz(-1)" ${isFirst ? 'disabled style="opacity:0.5"' : ''}>Previous</button>
+                        <button class="btn btn-secondary" style="width:48%;" onclick="navigateQuiz(1)">${isLast ? 'Finish Quiz' : 'Next Question'}</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkQuizAnswer(element, selectedIndex, correctAnswer, type) {
+            if (type === 'mc') {
+                const allButtons = element.parentElement.querySelectorAll('button');
+                allButtons.forEach(btn => btn.style.pointerEvents = 'none');
+
+                if (selectedIndex === correctAnswer) {
+                    element.style.background = 'var(--correct)';
+                    element.style.borderColor = 'var(--correct-dark)';
+                    element.style.color = 'white';
+                    updateXP(10);
+                } else {
+                    element.style.background = 'var(--incorrect)';
+                    element.style.borderColor = 'darkred';
+                    element.style.color = 'white';
+                    element.classList.add('shake');
+                    allButtons[correctAnswer].style.background = 'var(--correct)';
+                    allButtons[correctAnswer].style.color = 'white';
+                }
+            } else if (type === 'fill') {
+                const userAnswer = element.value.trim().toLowerCase();
+                const actualAnswer = correctAnswer.toLowerCase();
+                if (userAnswer.length > 3 && actualAnswer.includes(userAnswer) || userAnswer === actualAnswer) {
+                    element.style.borderColor = 'var(--correct)';
+                    element.style.backgroundColor = '#e8f5e9';
+                    updateXP(15);
+                    alert("Correct!");
+                } else {
+                    element.style.borderColor = 'var(--incorrect)';
+                    element.classList.add('shake');
+                    setTimeout(() => element.classList.remove('shake'), 400);
+                    alert(`Not quite! Hint: ${correctAnswer}`);
+                }
+            }
+        }
+
+        function navigateQuiz(direction) {
+            currentQuestionIndex += direction;
+            if (currentQuestionIndex >= currentLevel.questions.length) {
+                alert("Quiz Completed! Great job.");
+                renderMenu();
+            } else {
+                renderQuiz();
+            }
+        }
+
+        // --- ACTIVITY 3: FLASHCARDS ---
+        function startFlashcards() {
+            currentFlashcardIndex = 0;
+            renderFlashcardUI();
+        }
+
+        function renderFlashcardUI() {
+            const vocab = currentLevel.vocabulary;
+            const currentCard = vocab[currentFlashcardIndex];
+            appContainer.innerHTML = `
+                <button class="btn btn-secondary" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
+                <div class="reading-container animate-pop" style="text-align:center;">
+                    <h2 style="font-family:'Arial', sans-serif; margin-top:0;">Vocabulary Study</h2>
+                    <p style="color:var(--text-muted); font-family:sans-serif;">Card ${currentFlashcardIndex + 1} of ${vocab.length} (Click card to flip)</p>
+                    
+                    <div class="flashcard-scene" onclick="flipCard(this)">
+                        <div class="flashcard">
+                            <div class="flashcard-face flashcard-front">
+                                ${currentCard.word}
+                            </div>
+                            <div class="flashcard-face flashcard-back">
+                                <div class="flashcard-icon">${currentCard.icon}</div>
+                                <div>${currentCard.chinese}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-buttons">
+                        <button class="btn btn-secondary" style="width:48%;" onclick="navigateFlashcard(-1)">Previous</button>
+                        <button class="btn btn-secondary" style="width:48%;" onclick="navigateFlashcard(1)">Next</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function flipCard(sceneElement) {
+            const card = sceneElement.querySelector('.flashcard');
+            card.classList.toggle('is-flipped');
+        }
+
+        function navigateFlashcard(direction) {
+            const vocab = currentLevel.vocabulary;
+            currentFlashcardIndex += direction;
+            if (currentFlashcardIndex < 0) currentFlashcardIndex = vocab.length - 1;
+            if (currentFlashcardIndex >= vocab.length) currentFlashcardIndex = 0;
+            renderFlashcardUI();
+        }
+
+        // --- ACTIVITY 4: UNSCRAMBLE VOCAB ---
+        function startVocabUnscramble() {
+            currentVocabUnscrambleIndex = 0;
+            renderVocabUnscramble();
+        }
+
+        function scrambleString(str) {
+            let arr = str.split('');
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            let scrambled = arr.join('');
+            if (scrambled === str && str.length > 3) return scrambleString(str);
+            return scrambled;
+        }
+
+        function renderVocabUnscramble() {
+            const wordsList = currentLevel.unscrambleWords;
+            if (!wordsList || wordsList.length === 0) {
+                alert("No vocabulary loaded for unscrambling.");
+                return renderMenu();
+            }
+            
+            const originalWord = wordsList[currentVocabUnscrambleIndex];
+            const scrambledWord = scrambleString(originalWord);
+            
+            appContainer.innerHTML = `
+                <button class="btn btn-secondary" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
+                <div class="reading-container animate-pop" style="text-align:center;">
+                    <div style="display:flex; justify-content:space-between; color:var(--text-muted); font-family:sans-serif; margin-bottom:1rem;">
+                        <span>Word ${currentVocabUnscrambleIndex + 1} of ${wordsList.length}</span>
+                    </div>
+                    <h2 style="font-family:'Arial', sans-serif; margin-top:0;">Unscramble the Word</h2>
+                    
+                    <div class="scrambled-text">${scrambledWord}</div>
+                    
+                    <input type="text" id="unscramble-input" placeholder="Type correct word..." autocomplete="off">
+                    
+                    <button class="btn" style="margin-top:1rem;" onclick="checkVocabUnscramble('${originalWord}')">Check Word</button>
+                </div>
+            `;
+        }
+
+        function checkVocabUnscramble(correctWord) {
+            const inputEl = document.getElementById('unscramble-input');
+            const userWord = inputEl.value.trim().toLowerCase();
+            
+            if (userWord === correctWord.toLowerCase()) {
+                inputEl.style.borderColor = 'var(--correct)';
+                inputEl.style.backgroundColor = '#e8f5e9';
+                updateXP(10);
+                setTimeout(() => {
+                    currentVocabUnscrambleIndex++;
+                    if (currentVocabUnscrambleIndex >= currentLevel.unscrambleWords.length) {
+                        alert("Unscramble Challenge Complete! (+50 XP Bonus)");
+                        updateXP(50);
+                        renderMenu();
+                    } else {
+                        renderVocabUnscramble();
+                    }
+                }, 1000);
+            } else {
+                inputEl.style.borderColor = 'var(--incorrect)';
+                inputEl.classList.add('shake');
+                setTimeout(() => inputEl.classList.remove('shake'), 400);
+            }
+        }
+
+        // --- ACTIVITY 5: SENTENCE BUILDER ---
+        function startSentenceUnscramble() {
+            currentSentenceIndex = 0;
+            renderSentenceUnscramble();
+        }
+
+        function renderSentenceUnscramble() {
+            const sentencesList = currentLevel.sentences;
+            if (!sentencesList || sentencesList.length === 0) {
+                alert("No sentences loaded.");
+                return renderMenu();
+            }
+
+            const sentence = sentencesList[currentSentenceIndex];
+            let words = sentence.split(' ');
+            
+            let scrambledWords = [...words];
+            for (let i = scrambledWords.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [scrambledWords[i], scrambledWords[j]] = [scrambledWords[j], scrambledWords[i]];
+            }
+
+            const wordsHTML = scrambledWords.map((w, i) => 
+                `<div class="draggable-word" draggable="true" id="word-${i}" ondragstart="drag(event)" onclick="moveWordOnClick(this)">${w}</div>`
+            ).join('');
+
+            appContainer.innerHTML = `
+                <button class="btn btn-secondary" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
+                <div class="reading-container animate-pop">
+                    <div style="display:flex; justify-content:space-between; color:var(--text-muted); font-family:sans-serif; margin-bottom:1rem;">
+                        <span>Sentence ${currentSentenceIndex + 1} of ${sentencesList.length}</span>
+                    </div>
+                    <h2 style="font-family:'Arial', sans-serif; margin-top:0;">Build the Sentence</h2>
+                    <p style="color:var(--text-muted); font-family:sans-serif; font-size:1rem;">Drag and drop words, or click them to move them in order.</p>
+                    
+                    <div id="sentence-answer-zone" class="sentence-dropzone" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        <!-- Dropped words appear here -->
+                    </div>
+                    
+                    <div id="sentence-word-bank" class="word-bank" ondrop="drop(event)" ondragover="allowDrop(event)">
+                        ${wordsHTML}
+                    </div>
+                    
+                    <button class="btn" style="margin-top:2rem;" onclick="checkSentenceUnscramble('${sentence.replace(/'/g, "\\'")}')">Check Sentence</button>
+                </div>
+            `;
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            
+            if (ev.target.classList.contains('sentence-dropzone') || ev.target.classList.contains('word-bank')) {
+                ev.target.appendChild(draggedElement);
+            } else if (ev.target.classList.contains('draggable-word')) {
+                ev.target.parentNode.insertBefore(draggedElement, ev.target.nextSibling);
+            }
+        }
+
+        function moveWordOnClick(element) {
+            const answerZone = document.getElementById('sentence-answer-zone');
+            const wordBank = document.getElementById('sentence-word-bank');
+            
+            if (element.parentNode.id === 'sentence-word-bank') {
+                answerZone.appendChild(element);
+            } else {
+                wordBank.appendChild(element);
+            }
+        }
+
+        function checkSentenceUnscramble(correctSentence) {
+            const answerZone = document.getElementById('sentence-answer-zone');
+            const currentWords = Array.from(answerZone.children).map(el => el.innerText);
+            const userSentence = currentWords.join(' ');
+            
+            if (userSentence === correctSentence) {
+                answerZone.style.borderColor = 'var(--correct)';
+                answerZone.style.backgroundColor = '#e8f5e9';
+                updateXP(20);
+                setTimeout(() => {
+                    currentSentenceIndex++;
+                    if (currentSentenceIndex >= currentLevel.sentences.length) {
+                        alert("Sentence Builder Complete! (+50 XP Bonus)");
+                        updateXP(50);
+                        renderMenu();
+                    } else {
+                        renderSentenceUnscramble();
+                    }
+                }, 1500);
+            } else {
+                answerZone.style.borderColor = 'var(--incorrect)';
+                answerZone.classList.add('shake');
+                setTimeout(() => answerZone.classList.remove('shake'), 400);
+            }
+        }
+
+        // --- ACTIVITY 6: MATCH TRADITION TO COUNTRY ---
+        function startMatchTradition() {
+            matchTraditionIndex = 0;
+            renderMatchTradition();
+        }
+
+        function renderMatchTradition() {
+            const data = currentLevel.traditionsMap[matchTraditionIndex];
+            const correctFlag = flagsDB.find(f => f.name === data.country);
+            
+            let options = [correctFlag];
+            let pool = flagsDB.filter(f => f.name !== data.country);
+            pool.sort(() => 0.5 - Math.random());
+            options.push(...pool.slice(0, 5));
+            options.sort(() => 0.5 - Math.random());
+
+            appContainer.innerHTML = `
+                <button class="btn btn-secondary" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
+                <div class="reading-container animate-pop">
+                    <div style="display:flex; justify-content:space-between; color:var(--text-muted); font-family:sans-serif; margin-bottom:1rem;">
+                        <span>Question ${matchTraditionIndex + 1} of ${currentLevel.traditionsMap.length}</span>
+                    </div>
+                    
+                    <div class="tradition-display">
+                        " ${data.text} "
+                    </div>
+                    
+                    <h3 style="text-align:center; font-family:'Arial', sans-serif;">Which country is this?</h3>
+                    
+                    <div class="flag-grid">
+                        ${options.map(opt => `
+                            <div class="flag-option" onclick="checkMatchTradition(this, '${opt.name}', '${data.country}')">
+                                <span class="flag-emoji">${opt.emoji}</span>
+                                ${opt.name}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkMatchTradition(element, selectedCountry, correctCountry) {
+            const allOptions = document.querySelectorAll('.flag-option');
+            allOptions.forEach(opt => opt.style.pointerEvents = 'none');
+
+            if (selectedCountry === correctCountry) {
+                element.style.borderColor = 'var(--correct)';
+                element.style.background = '#e8f5e9';
+                updateXP(15);
+                setTimeout(() => {
+                    matchTraditionIndex++;
+                    if (matchTraditionIndex >= currentLevel.traditionsMap.length) {
+                        alert("Matching Game Complete! (+50 XP)");
+                        updateXP(50);
+                        renderMenu();
+                    } else {
+                        renderMatchTradition();
+                    }
+                }, 1200);
+            } else {
+                element.style.borderColor = 'var(--incorrect)';
+                element.style.background = '#ffebee';
+                element.classList.add('shake');
+                
+                allOptions.forEach(opt => {
+                    if (opt.innerText.includes(correctCountry)) {
+                        opt.style.borderColor = 'var(--correct)';
+                        opt.style.background = '#e8f5e9';
+                    }
+                });
+
+                setTimeout(() => {
+                    matchTraditionIndex++;
+                    if (matchTraditionIndex >= currentLevel.traditionsMap.length) {
+                        alert("Matching Game Complete!");
+                        renderMenu();
+                    } else {
+                        renderMatchTradition();
+                    }
+                }, 2500);
+            }
+        }
+
+        // --- ACTIVITY 7: FLAG CHALLENGE (SCRATCH & GUESS) ---
+        function startFlagChallenge() {
+            scratchChallengeIndex = 0;
+            scratchData = currentLevel.traditionsMap.map(t => {
+                let flagObj = flagsDB.find(f => f.name === t.country);
+                return {
+                    name: flagObj.name.toUpperCase(),
+                    img: flagObj.img,
+                    hint: t.text
+                };
+            });
+            scratchData.sort(() => 0.5 - Math.random());
+            renderFlagChallenge();
+        }
+
+        function renderFlagChallenge() {
+            if (scratchChallengeIndex >= scratchData.length) {
+                alert("Flag Challenge Complete! Great job.");
+                return renderMenu();
+            }
+
+            const current = scratchData[scratchChallengeIndex];
+            const hiddenWordHTML = current.name.split('').map(c => 
+                c === ' ' ? ' &nbsp; ' : `<span>${c}</span>`
+            ).join('');
+
+            appContainer.innerHTML = `
+                <button class="btn btn-secondary" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
+                <div class="reading-container animate-pop" style="padding-bottom: 1rem;">
+                    <div style="display:flex; justify-content:space-between; color:var(--text-muted); font-family:sans-serif; margin-bottom:1rem;">
+                        <span>Scratch Challenge ${scratchChallengeIndex + 1} of ${scratchData.length}</span>
+                    </div>
+                    
+                    <div style="background: rgba(42, 92, 141, 0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
+                        <strong>Hint:</strong> ${current.hint}
+                    </div>
+
+                    <div class="scratch-wrapper">
+                        <img id="secret-image" class="scratch-image" src="${current.img}" crossorigin="anonymous">
+                        <canvas id="scratch-canvas"></canvas>
+                    </div>
+
+                    <div id="word-area" class="flag-word-display hidden-word">
+                        ${hiddenWordHTML}
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-secondary" style="width:30%;" onclick="revealFlagWord()">Reveal</button>
+                        <button class="btn" style="width:65%;" onclick="correctFlagGuess()">I Guessed it! (+20 XP)</button>
+                    </div>
+                </div>
+            `;
+            setupScratchCanvas();
+        }
+
+        function setupScratchCanvas() {
+            scratchCanvasEl = document.getElementById('scratch-canvas');
+            scratchCtx = scratchCanvasEl.getContext('2d');
+            const imgEl = document.getElementById('secret-image');
+            
+            scratchCanvasEl.width = scratchCanvasEl.parentElement.offsetWidth;
+            scratchCanvasEl.height = scratchCanvasEl.parentElement.offsetHeight;
+            
+            imgEl.style.visibility = 'hidden';
+            scratchCtx.globalCompositeOperation = 'source-over';
+            scratchCtx.fillStyle = '#a0aab5'; 
+            scratchCtx.fillRect(0, 0, scratchCanvasEl.width, scratchCanvasEl.height);
+            
+            scratchCtx.fillStyle = '#8f99a3';
+            scratchCtx.font = "20px Arial";
+            for(let i=0; i<10; i++){
+                scratchCtx.fillText("SCRATCH", Math.random()*scratchCanvasEl.width, Math.random()*scratchCanvasEl.height);
+            }
+
+            const scratchMove = (e) => {
+                if (!isDrawing) return;
+                imgEl.style.visibility = 'visible'; 
+                const rect = scratchCanvasEl.getBoundingClientRect();
+                
+                let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                const x = clientX - rect.left;
+                const y = clientY - rect.top;
+                
+                scratchCtx.globalCompositeOperation = 'destination-out';
+                scratchCtx.beginPath(); 
+                scratchCtx.arc(x, y, 35, 0, Math.PI * 2); 
+                scratchCtx.fill();
+            };
+
+            scratchCanvasEl.onmousedown = (e) => { isDrawing = true; scratchMove(e); };
+            window.onmouseup = () => isDrawing = false;
+            scratchCanvasEl.onmousemove = scratchMove;
+            
+            scratchCanvasEl.ontouchstart = (e) => { isDrawing = true; scratchMove(e); e.preventDefault(); };
+            scratchCanvasEl.ontouchmove = (e) => { scratchMove(e); e.preventDefault(); };
+            window.ontouchend = () => isDrawing = false;
+        }
+
+        function revealFlagWord() {
+            const imgEl = document.getElementById('secret-image');
+            const wordArea = document.getElementById('word-area');
+            imgEl.style.visibility = 'visible';
+            wordArea.className = "flag-word-display revealed-word";
+            scratchCtx.clearRect(0, 0, scratchCanvasEl.width, scratchCanvasEl.height);
+        }
+
+        function correctFlagGuess() {
+            revealFlagWord();
+            updateXP(20);
+            setTimeout(() => {
+                scratchChallengeIndex++;
+                renderFlagChallenge();
+            }, 1500);
+        }
+
+        // --- UTILS ---
+        function setupThemeToggle() {
+            const toggle = document.getElementById('dark-mode-toggle');
+            toggle.addEventListener('click', () => {
+                const isDark = document.body.getAttribute('data-theme') === 'dark';
+                document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+                toggle.textContent = isDark ? '🌙' : '☀️';
+            });
+        }
+
+        // Boot up
+        init();
+    </script>
+</body>
+</html>
