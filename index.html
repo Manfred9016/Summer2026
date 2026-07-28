@@ -473,6 +473,17 @@
     margin-bottom: 1rem;
     border: 2px solid var(--primary);
 }
+/* Mobile Responsiveness for Buttons */
+        @media (max-width: 600px) {
+            .nav-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .nav-buttons .btn {
+                width: 100% !important;
+                margin-top: 0;
+            }
+        }
     </style>
 </head>
 <body>
