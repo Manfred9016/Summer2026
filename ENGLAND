@@ -472,7 +472,7 @@
             { name: "Guatemala", emoji: "🇬🇹", img: "https://flagcdn.com/w640/gt.png" },
             { name: "Peru", emoji: "🇵🇪", img: "https://flagcdn.com/w640/pe.png" },
             { name: "Indonesia", emoji: "🇮🇩", img: "https://flagcdn.com/w640/id.png" },
-            { name: "England", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", img: "https://flagcdn.com/w640/gb-eng.png" }
+            { name: "England", emoji: "EN", img: "https://flagcdn.com/w640/gb-eng.png" }
         ];
 
         const courseData = {
