@@ -138,15 +138,6 @@
             opacity: 0.3;
         }
 
-        .level-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border: 2px solid var(--primary);
-        }
-
         .level-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 0 rgba(0,0,0,0.1);
@@ -191,18 +182,6 @@
             justify-content: space-between;
             gap: 10px;
             margin-top: 2rem;
-        }
-
-        /* Mobile Responsiveness for Navigation Buttons */
-        @media (max-width: 600px) {
-            .nav-buttons {
-                flex-direction: column;
-                gap: 15px;
-            }
-            .nav-buttons .btn {
-                width: 100% !important;
-                margin-top: 0;
-            }
         }
 
         .reading-container {
@@ -422,6 +401,53 @@
             margin-bottom: 0.5rem;
         }
 
+        /* Scratch Challenge */
+        .scratch-wrapper {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: #222;
+            border: 6px solid var(--primary);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .scratch-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            visibility: hidden;
+        }
+        #scratch-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: crosshair;
+            z-index: 5;
+            border-radius: 6px;
+        }
+        .flag-word-display {
+            font-family: 'Arial', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 5px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+        .hidden-word span {
+            background: var(--primary-dark);
+            color: transparent;
+            border: 2px solid var(--bg-color);
+            padding: 0 10px;
+            margin: 0 3px;
+            border-radius: 4px;
+        }
+        .revealed-word span {
+            color: var(--text-main);
+            background: transparent;
+            border: none;
+        }
+
         /* Animations */
         @keyframes popIn {
             0% { transform: scale(0.95); opacity: 0; }
@@ -439,11 +465,30 @@
         .shake {
             animation: shake 0.4s ease-in-out;
         }
+        .level-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 2px solid var(--primary);
+}
+/* Mobile Responsiveness for Buttons */
+        @media (max-width: 600px) {
+            .nav-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .nav-buttons .btn {
+                width: 100% !important;
+                margin-top: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <header class="app-header">
-        <div class="logo">PASSPORT to CULTURE</div>
+        <div class="logo">Cultural Differences Around the World</div>
         <div class="stats">
             <span id="xp-counter">⭐ 0 XP</span>
             <button id="dark-mode-toggle">🌙</button>
@@ -457,22 +502,29 @@
     <script>
         // --- DATA LAYER ---
         const flagsDB = [
+            // Original Basic Countries
             { name: "Japan", emoji: "🇯🇵", img: "https://flagcdn.com/w640/jp.png" },
             { name: "Brazil", emoji: "🇧🇷", img: "https://flagcdn.com/w640/br.png" },
             { name: "Greece", emoji: "🇬🇷", img: "https://flagcdn.com/w640/gr.png" },
             { name: "Spain", emoji: "🇪🇸", img: "https://flagcdn.com/w640/es.png" },
             { name: "Ireland", emoji: "🇮🇪", img: "https://flagcdn.com/w640/ie.png" },
             { name: "Denmark", emoji: "🇩🇰", img: "https://flagcdn.com/w640/dk.png" },
+            
+            // Original Intermediate Countries (These were missing!)
             { name: "Mexico", emoji: "🇲🇽", img: "https://flagcdn.com/w640/mx.png" },
             { name: "Bolivia", emoji: "🇧🇴", img: "https://flagcdn.com/w640/bo.png" },
             { name: "Finland", emoji: "🇫🇮", img: "https://flagcdn.com/w640/fi.png" },
             { name: "UK", emoji: "🇬🇧", img: "https://flagcdn.com/w640/gb.png" },
+            
+            // Your New Countries
             { name: "USA", emoji: "🇺🇸", img: "https://flagcdn.com/w640/us.png" },
-            { name: "Canada", emoji: "🇨🇦", img: "https://flagcdn.com/w640/ca.png" },
             { name: "Guatemala", emoji: "🇬🇹", img: "https://flagcdn.com/w640/gt.png" },
-            { name: "Peru", emoji: "🇵🇪", img: "https://flagcdn.com/w640/pe.png" },
+            { name: "Philippines", emoji: "🇵🇭", img: "https://flagcdn.com/w640/ph.png" },
             { name: "Indonesia", emoji: "🇮🇩", img: "https://flagcdn.com/w640/id.png" },
-            { name: "England", emoji: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", img: "https://flagcdn.com/w640/gb-eng.png" }
+            { name: "Portugal", emoji: "🇵🇹", img: "https://flagcdn.com/w640/pt.png" },
+            { name: "Argentina", emoji: "🇦🇷", img: "https://flagcdn.com/w640/ar.png" },
+            { name: "Italy", emoji: "🇮🇹", img: "https://flagcdn.com/w640/it.png" },
+            { name: "Venezuela", emoji: "🇻🇪", img: "https://flagcdn.com/w640/ve.png" }
         ];
 
         const courseData = {
@@ -488,7 +540,7 @@
                 { country: "Greece", text: "An onion is traditionally hung on the front door of homes on New Year's Eve in Greece as a symbol of rebirth in the New Year. On New Year's Day, parents wake their children by tapping them on the head with the onion." },
                 { country: "Spain", text: "In Spain, it is customary to eat 12 grapes – one at each stroke of the clock at midnight on New Year's Eve. Each grape represents good luck for one month of the coming year. In bigger cities like Madrid and Barcelona, people gather in main squares to eat their grapes together and pass around bottles of cava." },
                 { country: "Ireland", text: "New Year's Eve in Ireland is a time of celebration and tradition marked by various customs and activities. These include the \"First Footing\" tradition. The first person to enter a house after midnight is seen as a symbol of good luck for the year ahead." },
-                { country: "Denmark", text: "Residents of Denmark greet the New Year by throwing old plates and glasses against the doors of family and friends to banish bad spirits. They also stand on chairs and jump off of them together at midnight to \"leap\" into January in hopes of good luck." }
+                { country: "Denmark", text: "Residents of Denmark greet the New Year by throwing old plates and glasses against the doors of family and friends to banish bad spirits. They also stand on chairs and jump off of them together at midnight to \"leap\" into January in hopes of good luck." },
               ],
               vocabulary: [
                 { word: "symbolize", chinese: "象徵", icon: "✨" },
@@ -498,7 +550,12 @@
                 { word: "desires", chinese: "慾望", icon: "💭" },
                 { word: "purifies", chinese: "淨化", icon: "💧" },
                 { word: "special", chinese: "特別的", icon: "🌟" },
-                { word: "banish", chinese: "驅逐", icon: "🚫" }
+                { word: "banish", chinese: "驅逐", icon: "🚫" },
+                { word: "reputation", chinese: "聲名", icon: "🏆" },
+                { word: "customary", chinese: "習慣的", icon: "🎅🏻🎁" },
+                { word: "gather", chinese: "聚集", icon: "👥" },
+                { word: "celebration", chinese: "慶祝", icon: "🎉" },
+                { word: "ceremony", chinese: "儀式", icon: "🛣 go to ⛪️ or 🎎" }
               ],
               questions: [
                 { type: "mc", q: "1. In which country is it considered lucky to wear special colored underwear on New Year's Eve?", options: ["Japan", "Brazil", "Greece", "Spain"], answer: 1 },
@@ -519,7 +576,15 @@
                   { country: "Greece", text: "An onion is traditionally hung on the front door of homes as a symbol of rebirth." },
                   { country: "Spain", text: "It is customary to eat 12 grapes – one at each stroke of the clock at midnight." },
                   { country: "Ireland", text: "The 'First Footing' tradition brings good luck depending on the first person to enter a house." },
-                  { country: "Denmark", text: "People throw old plates and glasses against the doors of family and friends to banish bad spirits." }
+                  { country: "Denmark", text: "People throw old plates and glasses against the doors of family and friends to banish bad spirits." },
+                  { country: "USA", text: "People gather to watch the massive midnight ball drop in Times Square to welcome the new year." },
+                  { country: "Guatemala", text: "People throw 12 pennies backward over their shoulders onto the street for financial prosperity." },
+                  { country: "Philippines", text: "Families wear polka dots and display round fruits on New Year's Eve to attract wealth and good fortune." },
+                  { country: "Indonesia", text: "Communities celebrate local New Year traditions with colorful street parades, traditional music, and shadow puppet shows." },
+                  { country: "Portugal", text: "Eating 12 raisins at midnight—one for each chime of the clock—brings good luck for every month of the year." },
+                  { country: "Argentina", text: "People toss shredded paperwork and old documents out of office windows to symbolize leaving behind past work stress." },
+                  { country: "Italy", text: "People wear red underwear on New Year's Eve as a symbolic way to invite love and good luck into the coming year." },
+                  { country: "Venezuela", text: "People wear brand new yellow underwear and walk around the block carrying empty suitcases to attract travel adventures." }
               ]
             },
             {
@@ -535,10 +600,14 @@
                 { country: "Cheese Rolling, UK", text: "Every Spring Bank Holiday, crowds gather on Cooper's Hill in Gloucestershire to chase cheese down a hill. Competitors race to catch a seven to nine-pound round of Double Gloucester cheese, as it reaches speeds of up to 70 miles per hour rolling down Cooper's Hill. The winner is presented with a cheese as their prize. While the origins of the event have been lost to history, we know that it has been celebrated locally for well over 200 years." }
               ],
               vocabulary: [
-                { word: "nibble", chinese: "咬", icon: "🍰" },
-                { word: "approach", chinese: "方法", icon: "🛠️" },
+                { word: "nibble", chinese: "啃", icon: "🍰" },
+                { word: "approach", chinese: "接近；著手處理", icon: "🔜 🛣 🏚" },
                 { word: "tradition", chinese: "傳統", icon: "📜" },
-                { word: "obstacle", chinese: "障礙", icon: "🚧" }
+                { word: "obstacle", chinese: "障礙", icon: "🚧" },
+                { word: "competitor", chinese: "競爭者", icon: "🏃‍♂️" },
+                { word: "entertaining", chinese: "娛樂的", icon: "🎭" },
+                { word: "plenty", chinese: "大量的", icon: "🍽️,🍽️,🍽️" },
+                
               ],
               questions: [
                 { type: "mc", q: "1. What is the tradition in Bolivia involving sweet pastries and cakes on New Year's Eve?", options: ["Baking money into them", "Sharing them with neighbors", "Decorating them with colorful icing", "Feeding them to livestock"], answer: 0 },
@@ -556,7 +625,15 @@
                   { country: "Bolivia", text: "It is traditional to bake money into sweet pastries and cakes on New Year's Eve." },
                   { country: "Greece", text: "Children toss their milk teeth onto the roof when they fall out to bring good luck." },
                   { country: "Finland", text: "Athletes participate in a Wife Carrying World Championship obstacle course." },
-                  { country: "UK", text: "Crowds gather on Cooper's Hill to chase a 9-pound round of cheese down a steep hill." }
+                  { country: "UK", text: "Crowds gather on Cooper's Hill to chase a 9-pound round of cheese down a steep hill." },
+                  { country: "USA", text: "People gather to watch the massive midnight ball drop in Times Square to welcome the new year." },
+                  { country: "Guatemala", text: "People throw 12 pennies backward over their shoulders onto the street for financial prosperity." },
+                  { country: "Philippines", text: "Families wear polka dots and display round fruits on New Year's Eve to attract wealth and good fortune." },
+                  { country: "Indonesia", text: "Communities celebrate local New Year traditions with colorful street parades, traditional music, and shadow puppet shows." },
+                  { country: "Portugal", text: "Eating 12 raisins at midnight—one for each chime of the clock—brings good luck for every month of the year." },
+                  { country: "Argentina", text: "People toss shredded paperwork and old documents out of office windows to symbolize leaving behind past work stress." },
+                  { country: "Italy", text: "People wear red underwear on New Year's Eve as a symbolic way to invite love and good luck into the coming year." },
+                  { country: "Venezuela", text: "People wear brand new yellow underwear and walk around the block carrying empty suitcases to attract travel adventures." }
               ]
             }
           ]
@@ -572,10 +649,13 @@
         let currentVocabUnscrambleIndex = 0;
         let currentSentenceIndex = 0;
         let matchTraditionIndex = 0;
-        let flagChallengeIndex = 0;
+        let scratchChallengeIndex = 0;
         
         let wordsToFind = [];
-        let flagData = []; 
+        let scratchData = []; 
+        let isDrawing = false;
+        let scratchCtx = null;
+        let scratchCanvasEl = null;
 
         function init() {
             updateXP(0);
@@ -590,19 +670,19 @@
         }
 
         function renderHome() {
-            appContainer.innerHTML = `
-                <h1 style="text-align:center; font-family:'Arial', sans-serif;">CHOOSE YOUR DESTINATION</h1>
-                <div class="card-grid animate-pop">
-                    ${courseData.levels.map(level => `
-                        <div class="level-card" onclick="startLevel('${level.id}')">
-                            <img src="${level.image}" alt="${level.title}" class="level-image">
-                            <h2 style="font-family:'Arial', sans-serif; color:var(--primary);">${level.title}</h2>
-                            <p style="color: var(--text-muted); font-family:sans-serif;">${level.description}</p>
-                        </div>
-                    `).join('')}
+    appContainer.innerHTML = `
+        <h1 style="text-align:center; font-family:'Arial', sans-serif;">CHOOSE YOUR DESTINATION</h1>
+        <div class="card-grid animate-pop">
+            ${courseData.levels.map(level => `
+                <div class="level-card" onclick="startLevel('${level.id}')">
+                    <img src="${level.image}" alt="${level.title}" class="level-image">
+                    <h2 style="font-family:'Arial', sans-serif; color:var(--primary);">${level.title}</h2>
+                    <p style="color: var(--text-muted); font-family:sans-serif;">${level.description}</p>
                 </div>
-            `;
-        }
+            `).join('')}
+        </div>
+    `;
+}
 
         function startLevel(levelId) {
             currentLevel = courseData.levels.find(l => l.id === levelId);
@@ -616,11 +696,11 @@
                 <div class="card-grid animate-pop">
                     <div class="level-card" onclick="renderReading()">
                         <div style="font-size: 3rem;">📖</div>
-                        <h3 style="font-family:'Arial', sans-serif; margin-top:1rem;">Reading Mission</h3>
+                        <h3 style="font-family:'Arial', sans-serif; margin-top:1rem;">Reading </h3>
                     </div>
                     <div class="level-card" onclick="startQuiz()">
                         <div style="font-size: 3rem;">❓</div>
-                        <h3 style="font-family:'Arial', sans-serif; margin-top:1rem;">Knowledge Check</h3>
+                        <h3 style="font-family:'Arial', sans-serif; margin-top:1rem;">Reading Comprehension</h3>
                     </div>
                     <div class="level-card" onclick="startFlashcards()">
                         <div style="font-size: 3rem;">🎴</div>
@@ -649,6 +729,7 @@
         // --- ACTIVITY 1: READING WITH WORD CLOUD ---
         function renderReading() {
             wordsToFind = currentLevel.vocabulary.map(v => v.word.toLowerCase());
+            
             const cloudHTML = currentLevel.vocabulary.map(v => 
                 `<span class="cloud-word" id="cloud-${v.word.toLowerCase()}">${v.word}</span>`
             ).join('');
@@ -701,6 +782,7 @@
             const qData = currentLevel.questions[currentQuestionIndex];
             const isLast = currentQuestionIndex === currentLevel.questions.length - 1;
             const isFirst = currentQuestionIndex === 0;
+            
             let interactionHTML = '';
             
             if (qData.type === 'mc') {
@@ -1086,10 +1168,10 @@
             }
         }
 
-        // --- ACTIVITY 7: FLAG CHALLENGE (6 OPTIONS) ---
+        // --- ACTIVITY 7: FLAG CHALLENGE (SCRATCH & GUESS) ---
         function startFlagChallenge() {
-            flagChallengeIndex = 0;
-            flagData = currentLevel.traditionsMap.map(t => {
+            scratchChallengeIndex = 0;
+            scratchData = currentLevel.traditionsMap.map(t => {
                 let flagObj = flagsDB.find(f => f.name === t.country);
                 return {
                     name: flagObj.name.toUpperCase(),
@@ -1097,72 +1179,110 @@
                     hint: t.text
                 };
             });
-            flagData.sort(() => 0.5 - Math.random());
+            scratchData.sort(() => 0.5 - Math.random());
             renderFlagChallenge();
         }
 
         function renderFlagChallenge() {
-            if (flagChallengeIndex >= flagData.length) {
+            if (scratchChallengeIndex >= scratchData.length) {
                 alert("Flag Challenge Complete! Great job.");
                 return renderMenu();
             }
 
-            const current = flagData[flagChallengeIndex];
-            
-            // Generate 6 options
-            let options = [current.name];
-            let pool = flagsDB.map(f => f.name.toUpperCase()).filter(n => n !== current.name);
-            pool.sort(() => 0.5 - Math.random());
-            options.push(...pool.slice(0, 5));
-            options.sort(() => 0.5 - Math.random());
+            const current = scratchData[scratchChallengeIndex];
+            const hiddenWordHTML = current.name.split('').map(c => 
+                c === ' ' ? ' &nbsp; ' : `<span>${c}</span>`
+            ).join('');
 
             appContainer.innerHTML = `
                 <button class="btn btn-secondary" style="width:auto; margin-bottom: 1rem;" onclick="renderMenu()">← Back to Menu</button>
-                <div class="reading-container animate-pop" style="padding-bottom: 1rem; text-align: center;">
+                <div class="reading-container animate-pop" style="padding-bottom: 1rem;">
                     <div style="display:flex; justify-content:space-between; color:var(--text-muted); font-family:sans-serif; margin-bottom:1rem;">
-                        <span>Flag Challenge ${flagChallengeIndex + 1} of ${flagData.length}</span>
+                        <span>Scratch Challenge ${scratchChallengeIndex + 1} of ${scratchData.length}</span>
                     </div>
-
-                    <div style="background: rgba(42, 92, 141, 0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--primary); text-align: left;">
+                    
+                    <div style="background: rgba(42, 92, 141, 0.1); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
                         <strong>Hint:</strong> ${current.hint}
                     </div>
 
-                    <div id="flag-feedback-zone" style="min-height: 250px; display: flex; align-items: center; justify-content: center;">
-                        <img src="${current.img}" style="width: 100%; max-width: 400px; border: 4px solid var(--primary); border-radius: 12px; margin-bottom: 2rem;" crossorigin="anonymous">
+                    <div class="scratch-wrapper">
+                        <img id="secret-image" class="scratch-image" src="${current.img}" crossorigin="anonymous">
+                        <canvas id="scratch-canvas"></canvas>
                     </div>
 
-                    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
-                        ${options.map(opt => `
-                            <button class="btn btn-secondary" style="margin-top: 0; padding: 1rem 0.5rem;" onclick="checkFlagGuess(this, '${opt}', '${current.name}')">${opt}</button>
-                        `).join('')}
+                    <div id="word-area" class="flag-word-display hidden-word">
+                        ${hiddenWordHTML}
+                    </div>
+
+                    <div class="nav-buttons">
+                        <button class="btn btn-secondary" style="width:30%;" onclick="revealFlagWord()">Reveal</button>
+                        <button class="btn" style="width:65%;" onclick="correctFlagGuess()">I Guessed it! (+20 XP)</button>
                     </div>
                 </div>
             `;
+            setupScratchCanvas();
         }
 
-        function checkFlagGuess(btn, selected, correct) {
-            // Disable buttons after selection
-            const allButtons = btn.parentElement.querySelectorAll('button');
-            allButtons.forEach(b => b.style.pointerEvents = 'none');
-
-            if (selected === correct) {
-                btn.style.background = 'var(--correct)';
-                btn.style.color = 'white';
-                updateXP(20);
-                setTimeout(() => {
-                    flagChallengeIndex++;
-                    renderFlagChallenge();
-                }, 1000);
-            } else {
-                const feedbackZone = document.getElementById('flag-feedback-zone');
-                
-                // Show the exact error message requested
-                feedbackZone.innerHTML = `<span style="display: block; color: var(--incorrect); font-size: 2rem; font-weight: bold; margin: 2rem 0; text-transform: uppercase; animation: shake 0.4s ease-in-out;">67 67 67.... You are WRONG !!!</span>`;
-                
-                setTimeout(() => {
-                    renderFlagChallenge(); 
-                }, 2000);
+        function setupScratchCanvas() {
+            scratchCanvasEl = document.getElementById('scratch-canvas');
+            scratchCtx = scratchCanvasEl.getContext('2d');
+            const imgEl = document.getElementById('secret-image');
+            
+            scratchCanvasEl.width = scratchCanvasEl.parentElement.offsetWidth;
+            scratchCanvasEl.height = scratchCanvasEl.parentElement.offsetHeight;
+            
+            imgEl.style.visibility = 'hidden';
+            scratchCtx.globalCompositeOperation = 'source-over';
+            scratchCtx.fillStyle = '#a0aab5'; 
+            scratchCtx.fillRect(0, 0, scratchCanvasEl.width, scratchCanvasEl.height);
+            
+            scratchCtx.fillStyle = '#8f99a3';
+            scratchCtx.font = "20px Arial";
+            for(let i=0; i<10; i++){
+                scratchCtx.fillText("SCRATCH", Math.random()*scratchCanvasEl.width, Math.random()*scratchCanvasEl.height);
             }
+
+            const scratchMove = (e) => {
+                if (!isDrawing) return;
+                imgEl.style.visibility = 'visible'; 
+                const rect = scratchCanvasEl.getBoundingClientRect();
+                
+                let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                const x = clientX - rect.left;
+                const y = clientY - rect.top;
+                
+                scratchCtx.globalCompositeOperation = 'destination-out';
+                scratchCtx.beginPath(); 
+                scratchCtx.arc(x, y, 35, 0, Math.PI * 2); 
+                scratchCtx.fill();
+            };
+
+            scratchCanvasEl.onmousedown = (e) => { isDrawing = true; scratchMove(e); };
+            window.onmouseup = () => isDrawing = false;
+            scratchCanvasEl.onmousemove = scratchMove;
+            
+            scratchCanvasEl.ontouchstart = (e) => { isDrawing = true; scratchMove(e); e.preventDefault(); };
+            scratchCanvasEl.ontouchmove = (e) => { scratchMove(e); e.preventDefault(); };
+            window.ontouchend = () => isDrawing = false;
+        }
+
+        function revealFlagWord() {
+            const imgEl = document.getElementById('secret-image');
+            const wordArea = document.getElementById('word-area');
+            imgEl.style.visibility = 'visible';
+            wordArea.className = "flag-word-display revealed-word";
+            scratchCtx.clearRect(0, 0, scratchCanvasEl.width, scratchCanvasEl.height);
+        }
+
+        function correctFlagGuess() {
+            revealFlagWord();
+            updateXP(20);
+            setTimeout(() => {
+                scratchChallengeIndex++;
+                renderFlagChallenge();
+            }, 1500);
         }
 
         // --- UTILS ---
